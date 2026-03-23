@@ -1,0 +1,172 @@
+// Prisma schema for Thrift Store
+// Docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ===========================================
+// CATEGORIES
+// ===========================================
+model Category {
+  id        String    @id @default(cuid())
+  name      String
+  slug      String    @unique
+  createdAt DateTime  @default(now()) @map("created_at")
+  products  Product[]
+
+  @@map("categories")
+}
+
+// ===========================================
+// PRODUCTS
+// ===========================================
+model Product {
+  id          String         @id @default(cuid())
+  name        String
+  slug        String         @unique
+  description String?        @db.Text
+  price       Decimal        @db.Decimal(10, 2)
+  oldPrice    Decimal?       @map("old_price") @db.Decimal(10, 2)
+  categoryId  String         @map("category_id")
+  size        String?
+  condition   Condition      @default(very_good)
+  brand       String?
+  color       String?
+  material    String?
+  status      ProductStatus  @default(available)
+  createdAt   DateTime       @default(now()) @map("created_at")
+  updatedAt   DateTime       @updatedAt @map("updated_at")
+
+  category    Category       @relation(fields: [categoryId], references: [id])
+  images      ProductImage[]
+  orderItems  OrderItem[]
+
+  @@index([categoryId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("products")
+}
+
+enum Condition {
+  like_new
+  very_good
+  good
+}
+
+enum ProductStatus {
+  available
+  sold
+  reserved
+}
+
+// ===========================================
+// PRODUCT IMAGES
+// ===========================================
+model ProductImage {
+  id        String  @id @default(cuid())
+  productId String  @map("product_id")
+  url       String
+  position  Int     @default(0)
+
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@map("product_images")
+}
+
+// ===========================================
+// ORDERS
+// ===========================================
+model Order {
+  id                    String      @id @default(cuid())
+  orderNumber           String      @unique @map("order_number")
+  status                OrderStatus @default(pending_payment)
+  customerEmail         String      @map("customer_email")
+  customerName          String      @map("customer_name")
+  customerPhone         String?     @map("customer_phone")
+  shippingAddress       Json        @map("shipping_address")
+  shippingMethod        String      @map("shipping_method")
+  shippingMethodId      String?     @map("shipping_method_id")
+  shippingCost          Decimal     @map("shipping_cost") @db.Decimal(10, 2)
+  shippingTracking      String?     @map("shipping_tracking")
+  subtotal              Decimal     @db.Decimal(10, 2)
+  total                 Decimal     @db.Decimal(10, 2)
+  stripePaymentIntentId String?     @map("stripe_payment_intent_id")
+  stripeSessionId       String?     @map("stripe_session_id")
+  notes                 String?     @db.Text
+  createdAt             DateTime    @default(now()) @map("created_at")
+  updatedAt             DateTime    @updatedAt @map("updated_at")
+
+  items                 OrderItem[]
+
+  @@index([status])
+  @@index([customerEmail])
+  @@index([createdAt])
+  @@map("orders")
+}
+
+enum OrderStatus {
+  pending_payment
+  paid
+  shipped
+  delivered
+  cancelled
+}
+
+// ===========================================
+// ORDER ITEMS
+// ===========================================
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String  @map("order_id")
+  productId String  @map("product_id")
+  price     Decimal @db.Decimal(10, 2)
+
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@index([orderId])
+  @@index([productId])
+  @@map("order_items")
+}
+
+// ===========================================
+// SHIPPING ZONES
+// ===========================================
+model ShippingZone {
+  id        String           @id @default(cuid())
+  name      String
+  countries String[]         @default([])
+  createdAt DateTime         @default(now()) @map("created_at")
+
+  methods   ShippingMethod[]
+
+  @@map("shipping_zones")
+}
+
+// ===========================================
+// SHIPPING METHODS
+// ===========================================
+model ShippingMethod {
+  id            String       @id @default(cuid())
+  zoneId        String       @map("zone_id")
+  name          String
+  description   String?
+  price         Decimal      @db.Decimal(10, 2)
+  estimatedDays String?      @map("estimated_days")
+  active        Boolean      @default(true)
+  createdAt     DateTime     @default(now()) @map("created_at")
+
+  zone          ShippingZone @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+
+  @@index([zoneId])
+  @@index([active])
+  @@map("shipping_methods")
+}
