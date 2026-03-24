@@ -12,6 +12,7 @@ interface ProductFiltersProps {
   currentFilters: {
     category?: string;
     condition?: string;
+    gender?: string;
     minPrice?: string;
     maxPrice?: string;
     size?: string;
@@ -57,6 +58,7 @@ export function ProductFilters({
   const hasActiveFilters =
     currentFilters.category ||
     currentFilters.condition ||
+    currentFilters.gender ||
     currentFilters.minPrice ||
     currentFilters.maxPrice ||
     currentFilters.size ||
@@ -109,6 +111,53 @@ export function ProductFilters({
             <option value="price_asc">Price: Low to High</option>
             <option value="price_desc">Price: High to Low</option>
           </Select>
+        </div>
+
+        {/* Gender */}
+        <div>
+          <h3 className="font-medium text-espresso-900 mb-3">Gender</h3>
+          <div className="space-y-2">
+            <button
+              onClick={() => updateFilter("gender", null)}
+              className={`block w-full text-left px-3 py-2 text-sm transition-colors ${
+                !currentFilters.gender
+                  ? "bg-espresso-900 text-cream-50"
+                  : "text-espresso-700 hover:bg-cream-100"
+              }`}
+            >
+              All
+            </button>
+            <button
+              onClick={() => updateFilter("gender", "women")}
+              className={`block w-full text-left px-3 py-2 text-sm transition-colors ${
+                currentFilters.gender === "women"
+                  ? "bg-espresso-900 text-cream-50"
+                  : "text-espresso-700 hover:bg-cream-100"
+              }`}
+            >
+              Women
+            </button>
+            <button
+              onClick={() => updateFilter("gender", "men")}
+              className={`block w-full text-left px-3 py-2 text-sm transition-colors ${
+                currentFilters.gender === "men"
+                  ? "bg-espresso-900 text-cream-50"
+                  : "text-espresso-700 hover:bg-cream-100"
+              }`}
+            >
+              Men
+            </button>
+            <button
+              onClick={() => updateFilter("gender", "unisex")}
+              className={`block w-full text-left px-3 py-2 text-sm transition-colors ${
+                currentFilters.gender === "unisex"
+                  ? "bg-espresso-900 text-cream-50"
+                  : "text-espresso-700 hover:bg-cream-100"
+              }`}
+            >
+              Unisex
+            </button>
+          </div>
         </div>
 
         {/* Categories */}

@@ -47,7 +47,7 @@ export default async function ProductsPage() {
           </Link>
         </div>
       ) : (
-        <div className="bg-cream-50 border border-cream-200 overflow-hidden">
+        <div className="bg-cream-50 border border-cream-200">
           {/* Table header */}
           <div className="hidden md:grid md:grid-cols-12 gap-4 px-6 py-3 bg-cream-100 border-b border-cream-200 text-sm font-medium text-espresso-600">
             <div className="col-span-5">Product</div>

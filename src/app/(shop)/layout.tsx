@@ -30,12 +30,24 @@ export default async function ShopLayout({
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center gap-8">
               <Link
+                href="/shop?gender=women"
+                className="text-espresso-600 hover:text-espresso-900 transition-colors font-medium"
+              >
+                Women
+              </Link>
+              <Link
+                href="/shop?gender=men"
+                className="text-espresso-600 hover:text-espresso-900 transition-colors font-medium"
+              >
+                Men
+              </Link>
+              <Link
                 href="/shop"
                 className="text-espresso-600 hover:text-espresso-900 transition-colors"
               >
                 Shop All
               </Link>
-              {categories.slice(0, 5).map((category) => (
+              {categories.slice(0, 4).map((category) => (
                 <Link
                   key={category.id}
                   href={`/shop?category=${category.slug}`}
@@ -54,6 +66,18 @@ export default async function ShopLayout({
         {/* Mobile Navigation */}
         <nav className="md:hidden border-t border-cream-200 overflow-x-auto scrollbar-hide">
           <div className="flex items-center gap-6 px-4 py-3">
+            <Link
+              href="/shop?gender=women"
+              className="text-sm text-espresso-600 hover:text-espresso-900 whitespace-nowrap font-medium"
+            >
+              Women
+            </Link>
+            <Link
+              href="/shop?gender=men"
+              className="text-sm text-espresso-600 hover:text-espresso-900 whitespace-nowrap font-medium"
+            >
+              Men
+            </Link>
             <Link
               href="/shop"
               className="text-sm text-espresso-600 hover:text-espresso-900 whitespace-nowrap"

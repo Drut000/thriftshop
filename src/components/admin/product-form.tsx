@@ -41,6 +41,7 @@ export function ProductForm({ product, categories }: ProductFormProps) {
   const [categoryId, setCategoryId] = useState(product?.categoryId || "");
   const [size, setSize] = useState(product?.size || "");
   const [condition, setCondition] = useState(product?.condition || "very_good");
+  const [gender, setGender] = useState(product?.gender || "unisex");
   const [brand, setBrand] = useState(product?.brand || "");
   const [color, setColor] = useState(product?.color || "");
   const [material, setMaterial] = useState(product?.material || "");
@@ -179,6 +180,7 @@ export function ProductForm({ product, categories }: ProductFormProps) {
         categoryId,
         size,
         condition,
+        gender,
         brand: brand || null,
         color: color || null,
         material: material || null,
@@ -467,6 +469,21 @@ export function ProductForm({ product, categories }: ProductFormProps) {
                 <option value="like_new">Like New</option>
                 <option value="very_good">Very Good</option>
                 <option value="good">Good</option>
+              </Select>
+            </div>
+
+            <div>
+              <Label htmlFor="gender" required>
+                Gender
+              </Label>
+              <Select
+                id="gender"
+                value={gender}
+                onChange={(e) => setGender(e.target.value)}
+              >
+                <option value="unisex">Unisex</option>
+                <option value="men">Men</option>
+                <option value="women">Women</option>
               </Select>
             </div>
           </div>

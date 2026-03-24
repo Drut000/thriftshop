@@ -37,6 +37,7 @@ model Product {
   categoryId  String         @map("category_id")
   size        String?
   condition   Condition      @default(very_good)
+  gender      Gender         @default(unisex)
   brand       String?
   color       String?
   material    String?
@@ -51,6 +52,7 @@ model Product {
   @@index([categoryId])
   @@index([status])
   @@index([createdAt])
+  @@index([gender])
   @@map("products")
 }
 
@@ -64,6 +66,12 @@ enum ProductStatus {
   available
   sold
   reserved
+}
+
+enum Gender {
+  men
+  women
+  unisex
 }
 
 // ===========================================

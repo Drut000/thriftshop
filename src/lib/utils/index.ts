@@ -61,6 +61,18 @@ export function formatCondition(condition: string): string {
 }
 
 /**
+ * Format gender enum to human-readable text
+ */
+export function formatGender(gender: string): string {
+  const map: Record<string, string> = {
+    men: "Men",
+    women: "Women",
+    unisex: "Unisex",
+  };
+  return map[gender] || gender;
+}
+
+/**
  * Format order status to human-readable text
  */
 export function formatOrderStatus(status: string): string {

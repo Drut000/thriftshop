@@ -8,6 +8,7 @@ interface ShopPageProps {
   searchParams: Promise<{
     category?: string;
     condition?: string;
+    gender?: string;
     minPrice?: string;
     maxPrice?: string;
     size?: string;
@@ -17,7 +18,7 @@ interface ShopPageProps {
 }
 
 async function getProducts(searchParams: Awaited<ShopPageProps["searchParams"]>) {
-  const { category, condition, minPrice, maxPrice, size, sort, search } = searchParams;
+  const { category, condition, gender, minPrice, maxPrice, size, sort, search } = searchParams;
 
   const where: Record<string, unknown> = {
     status: "available",
@@ -30,6 +31,16 @@ async function getProducts(searchParams: Awaited<ShopPageProps["searchParams"]>)
     });
     if (categoryRecord) {
       where.categoryId = categoryRecord.id;
+    }
+  }
+
+  // Gender filter
+  if (gender && ["men", "women", "unisex"].includes(gender)) {
+    // If filtering by men or women, also include unisex
+    if (gender === "men" || gender === "women") {
+      where.gender = { in: [gender, "unisex"] };
+    } else {
+      where.gender = gender;
     }
   }
 
@@ -107,13 +118,20 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
   ]);
 
   const activeCategory = categories.find((c) => c.slug === params.category);
+  const activeGender = params.gender;
+  
+  // Build page title
+  let pageTitle = "All Products";
+  if (activeGender === "men") pageTitle = "Men";
+  else if (activeGender === "women") pageTitle = "Women";
+  if (activeCategory) pageTitle = activeCategory.name;
 
   return (
     <div className="container-page py-8 md:py-12">
       {/* Header */}
       <div className="mb-8">
         <h1 className="font-display text-display-sm md:text-display-md text-espresso-900">
-          {activeCategory ? activeCategory.name : "All Products"}
+          {pageTitle}
         </h1>
         <p className="text-espresso-500 mt-2">
           {products.length} item{products.length !== 1 ? "s" : ""} available

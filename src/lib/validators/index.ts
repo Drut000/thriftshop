@@ -13,6 +13,7 @@ export const productSchema = z.object({
   categoryId: z.string().min(1, "Category is required"),
   size: z.string().optional(),
   condition: z.enum(["like_new", "very_good", "good"]),
+  gender: z.enum(["men", "women", "unisex"]).default("unisex"),
   brand: z.string().optional().nullable(),
   color: z.string().optional().nullable(),
   material: z.string().optional().nullable(),

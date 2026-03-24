@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { db } from "@/lib/db";
-import { formatPrice, formatCondition } from "@/lib/utils";
+import { formatPrice, formatCondition, formatGender } from "@/lib/utils";
 import { ProductGallery } from "@/components/shop/product-gallery";
 import { AddToCartButton } from "@/components/shop/add-to-cart-button";
 import { ProductCard } from "@/components/shop/product-card";
@@ -113,6 +113,12 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 <p className="font-medium text-espresso-900">{product.size}</p>
               </div>
             )}
+            <div>
+              <span className="text-sm text-espresso-500">Gender</span>
+              <p className="font-medium text-espresso-900">
+                {formatGender(product.gender)}
+              </p>
+            </div>
             <div>
               <span className="text-sm text-espresso-500">Condition</span>
               <p className="font-medium text-espresso-900">

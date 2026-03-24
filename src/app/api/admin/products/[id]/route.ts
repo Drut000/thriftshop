@@ -101,11 +101,17 @@ export async function PATCH(request: Request, { params }: RouteParams) {
         });
       }
 
+      // Extract categoryId for relation connect
+      const { categoryId, ...updateData } = result.data;
+
       // Update product
       return tx.product.update({
         where: { id },
         data: {
-          ...result.data,
+          ...updateData,
+          category: {
+            connect: { id: categoryId },
+          },
           ...(images && {
             images: {
               create: (images as string[]).map((url, index) => ({
