@@ -149,7 +149,7 @@ export async function POST(request: Request) {
         orderNumber: order.orderNumber,
       },
       success_url: `${appUrl}/order/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${appUrl}/checkout?cancelled=true`,
+      cancel_url: `${appUrl}/checkout?cancelled=true&session_id={CHECKOUT_SESSION_ID}`,
       expires_at: Math.floor(Date.now() / 1000) + 30 * 60, // 30 minutes
     });
 

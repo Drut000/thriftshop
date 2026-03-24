@@ -45,7 +45,7 @@ export function ProductForm({ product, categories }: ProductFormProps) {
   const [brand, setBrand] = useState(product?.brand || "");
   const [color, setColor] = useState(product?.color || "");
   const [material, setMaterial] = useState(product?.material || "");
-  const [status, setStatus] = useState(product?.status || "available");
+  const [status, setStatus] = useState(product?.status || "draft");
 
   // Images state
   const [images, setImages] = useState<ImageItem[]>(
@@ -429,6 +429,7 @@ export function ProductForm({ product, categories }: ProductFormProps) {
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
               >
+                <option value="draft">Draft</option>
                 <option value="available">Available</option>
                 <option value="sold">Sold</option>
                 <option value="reserved">Reserved</option>

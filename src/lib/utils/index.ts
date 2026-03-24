@@ -99,6 +99,7 @@ export function getStatusColor(status: string): string {
     available: "bg-green-100 text-green-800",
     sold: "bg-gray-100 text-gray-800",
     reserved: "bg-orange-100 text-orange-800",
+    draft: "bg-purple-100 text-purple-800",
   };
   return colors[status] || "bg-gray-100 text-gray-800";
 }

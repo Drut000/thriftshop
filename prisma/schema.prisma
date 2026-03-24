@@ -63,6 +63,7 @@ enum Condition {
 }
 
 enum ProductStatus {
+  draft
   available
   sold
   reserved

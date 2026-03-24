@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { toast } from "sonner";
@@ -26,6 +26,7 @@ interface ShippingZone {
 
 export default function CheckoutPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const mounted = useMounted();
   const { items, getTotal, clearCart } = useCart();
 
@@ -48,6 +49,31 @@ export default function CheckoutPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   // Hydrate cart
+  useEffect(() => {
+    useCart.persist.rehydrate();
+  }, []);
+
+  // Handle cancelled payment - release reserved products
+  useEffect(() => {
+    const cancelled = searchParams.get("cancelled");
+    const sessionId = searchParams.get("session_id");
+    
+    if (cancelled === "true" && sessionId) {
+      // Release reserved products
+      fetch("/api/checkout/cancel", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sessionId }),
+      }).then(() => {
+        toast.info("Payment was cancelled. You can try again.");
+        // Clean URL
+        router.replace("/checkout");
+      }).catch(console.error);
+    } else if (cancelled === "true") {
+      toast.info("Payment was cancelled. You can try again.");
+      router.replace("/checkout");
+    }
+  }, [searchParams, router]);
   useEffect(() => {
     useCart.persist.rehydrate();
   }, []);

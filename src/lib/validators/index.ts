@@ -17,7 +17,7 @@ export const productSchema = z.object({
   brand: z.string().optional().nullable(),
   color: z.string().optional().nullable(),
   material: z.string().optional().nullable(),
-  status: z.enum(["available", "sold", "reserved"]).default("available"),
+  status: z.enum(["draft", "available", "sold", "reserved"]).default("draft"),
 });
 
 export type ProductInput = z.infer<typeof productSchema>;
