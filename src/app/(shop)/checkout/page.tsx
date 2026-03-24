@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -24,11 +24,11 @@ interface ShippingZone {
   methods: ShippingMethod[];
 }
 
-export default function CheckoutPage() {
+function CheckoutContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const mounted = useMounted();
-  const { items, getTotal, clearCart } = useCart();
+  const { items, getTotal } = useCart();
 
   // Form state
   const [email, setEmail] = useState("");
@@ -37,7 +37,7 @@ export default function CheckoutPage() {
   const [street, setStreet] = useState("");
   const [city, setCity] = useState("");
   const [postalCode, setPostalCode] = useState("");
-  const [country] = useState("PL"); // Only Poland for now
+  const [country] = useState("PL");
 
   // Shipping
   const [shippingZones, setShippingZones] = useState<ShippingZone[]>([]);
@@ -53,30 +53,27 @@ export default function CheckoutPage() {
     useCart.persist.rehydrate();
   }, []);
 
-  // Handle cancelled payment - release reserved products
+  // Handle cancelled payment
   useEffect(() => {
     const cancelled = searchParams.get("cancelled");
     const sessionId = searchParams.get("session_id");
-    
+
     if (cancelled === "true" && sessionId) {
-      // Release reserved products
       fetch("/api/checkout/cancel", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sessionId }),
-      }).then(() => {
-        toast.info("Payment was cancelled. You can try again.");
-        // Clean URL
-        router.replace("/checkout");
-      }).catch(console.error);
+      })
+        .then(() => {
+          toast.info("Payment was cancelled. You can try again.");
+          router.replace("/checkout");
+        })
+        .catch(console.error);
     } else if (cancelled === "true") {
       toast.info("Payment was cancelled. You can try again.");
       router.replace("/checkout");
     }
   }, [searchParams, router]);
-  useEffect(() => {
-    useCart.persist.rehydrate();
-  }, []);
 
   // Load shipping methods
   useEffect(() => {
@@ -86,7 +83,6 @@ export default function CheckoutPage() {
         if (res.ok) {
           const data = await res.json();
           setShippingZones(data);
-          // Select first method by default
           if (data.length > 0 && data[0].methods.length > 0) {
             setSelectedMethodId(data[0].methods[0].id);
           }
@@ -100,7 +96,6 @@ export default function CheckoutPage() {
     loadShipping();
   }, []);
 
-  // Get selected shipping method
   const selectedMethod = shippingZones
     .flatMap((z) => z.methods)
     .find((m) => m.id === selectedMethodId);
@@ -109,7 +104,6 @@ export default function CheckoutPage() {
   const subtotal = getTotal();
   const total = subtotal + shippingCost;
 
-  // Validate form
   function validate(): boolean {
     const newErrors: Record<string, string> = {};
 
@@ -140,7 +134,6 @@ export default function CheckoutPage() {
     setIsSubmitting(true);
 
     try {
-      // Create checkout session
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -166,15 +159,12 @@ export default function CheckoutPage() {
 
       if (!res.ok) {
         if (data.unavailable) {
-          // Some products no longer available
           toast.error("Some items are no longer available");
-          // Could remove them from cart here
           return;
         }
         throw new Error(data.error || "Checkout failed");
       }
 
-      // Redirect to Stripe
       if (data.url) {
         window.location.href = data.url;
       }
@@ -500,5 +490,21 @@ export default function CheckoutPage() {
         </div>
       </form>
     </div>
+  );
+}
+
+export default function CheckoutPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="container-page py-12">
+          <div className="flex items-center justify-center">
+            <Loader2 className="w-8 h-8 animate-spin text-espresso-400" />
+          </div>
+        </div>
+      }
+    >
+      <CheckoutContent />
+    </Suspense>
   );
 }
