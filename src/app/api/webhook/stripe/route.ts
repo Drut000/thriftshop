@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { db } from "@/lib/db";
 import { stripe } from "@/lib/stripe";
+import { sendOrderConfirmation } from "@/lib/emails";
 import Stripe from "stripe";
 
 export async function POST(request: Request) {
@@ -66,10 +67,16 @@ async function handleCheckoutComplete(session: Stripe.Checkout.Session) {
     return;
   }
 
-  // Get order
+  // Get order with items and products
   const order = await db.order.findUnique({
     where: { id: orderId },
-    include: { items: true },
+    include: {
+      items: {
+        include: {
+          product: true,
+        },
+      },
+    },
   });
 
   if (!order) {
@@ -100,6 +107,37 @@ async function handleCheckoutComplete(session: Stripe.Checkout.Session) {
   });
 
   console.log(`Order ${order.orderNumber} marked as paid`);
+
+  // Send confirmation email
+  try {
+    const shippingAddress = order.shippingAddress as {
+      street: string;
+      city: string;
+      postalCode: string;
+      country: string;
+    };
+
+    await sendOrderConfirmation({
+      to: order.customerEmail,
+      orderNumber: order.orderNumber,
+      customerName: order.customerName,
+      items: order.items.map((item) => ({
+        name: item.product.name,
+        size: item.product.size,
+        price: Number(item.price),
+      })),
+      subtotal: Number(order.subtotal),
+      shippingCost: Number(order.shippingCost),
+      shippingMethod: order.shippingMethod,
+      total: Number(order.total),
+      shippingAddress,
+    });
+
+    console.log(`Confirmation email sent to ${order.customerEmail}`);
+  } catch (error) {
+    // Don't fail the webhook if email fails
+    console.error("Failed to send confirmation email:", error);
+  }
 }
 
 async function handleCheckoutExpired(session: Stripe.Checkout.Session) {
